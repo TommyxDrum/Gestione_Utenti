@@ -1,0 +1,11 @@
+# Ignora i file generati da Maven o Gradle
+target/
+*.class
+
+# Ignora file IDE
+.idea/
+*.iml
+*.log
+
+# Ignora il file delle configurazioni di sistema
+application.properties
