@@ -1,8 +1,11 @@
 package mapper;
 
+import com.example.demo.models.UserModel;
 import dto.UserDTO;
-import models.UserModel;
+
 import org.springframework.stereotype.Service;
+
+//Vediti MapStruct
 
 @Service
 public class UserMapper {

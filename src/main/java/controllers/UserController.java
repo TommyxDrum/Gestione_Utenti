@@ -1,7 +1,10 @@
 package controllers;
 
+import api.UserApi;
+import com.example.demo.models.UserModel;
 import dto.UserDTO;
-import org.apache.coyote.Response;
+import mapper.UserMapper;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,19 +13,15 @@ import services.UserService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
-public class UserController {
+@RequestMapping("users")
+public class UserController implements UserApi {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
-    }
-
-    @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO){
-        UserDTO createdUser = userService.createUser(userDTO);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        this.userMapper = userMapper;
     }
 
     @GetMapping("/{id}")
@@ -35,7 +34,7 @@ public class UserController {
         return ResponseEntity.ok(foundUser);
     }
 
-    @GetMapping
+    @GetMapping("/getAllUser")
     public ResponseEntity<List<UserDTO>> getAllUser() {
         List<UserDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
@@ -51,6 +50,12 @@ public class UserController {
     public ResponseEntity<UserDTO> deleteUser(@PathVariable Long id){
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<UserModel> createUser(UserDTO user) {
+            UserDTO createdUser = userService.createUser(user);
+            return new ResponseEntity<>(userMapper.UserDTOtoUserModel(createdUser), HttpStatus.CREATED);
     }
 }
 

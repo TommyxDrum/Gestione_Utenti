@@ -1,4 +1,4 @@
-package models;
+package com.example.demo.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name="Users")
 public class UserModel {
     @Getter
     @Id
@@ -22,6 +23,4 @@ public class UserModel {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private Role role; // USER o ADMIN
 }

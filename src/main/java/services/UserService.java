@@ -1,8 +1,8 @@
 package services;
 
+import com.example.demo.models.UserModel;
 import dto.UserDTO;
 import mapper.UserMapper;
-import models.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import repositories.UserRepository;
