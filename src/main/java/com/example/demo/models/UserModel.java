@@ -1,9 +1,7 @@
 package com.example.demo.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +11,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name="Users")
+@ToString(exclude = "documentModels") // Evita ricorsione infinita nei toString
+@EqualsAndHashCode(exclude = "documentModels") // Evita loop nei hashCode e equals
 public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -13,37 +13,42 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class DocumentServiceImpl implements DocumentService
 {
-    @Autowired
-    private DocumentRepository documentRepository;
+    private final DocumentRepository documentRepository;
+
+    private final UserRepository userRepository;
+
+    private final ModelMapper modelMapper;
 
     @Autowired
-    private UserRepository userRepository;
+    public DocumentServiceImpl(DocumentRepository documentRepository, UserRepository userRepository, ModelMapper modelMapper) {
+        this.documentRepository = documentRepository;
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+    }
 
-    @Autowired
-    private UserServiceImpl userServiceImpl;
-
-    @Autowired
-    ModelMapper modelMapper;
-
-    private static final List<String> MIME_TYPES_ACCETTATI = Arrays.asList(
-            "application/pdf, image/jped, image/png"
-    );
+    private static final List<String> MIME_TYPES_ACCETTATI = List.of("application/pdf", "image/jpeg", "image/png", "application/octet-stream");
+    private static final long MAX_FILE_SIZE = (5*1024*1024); //5Mb
 
     @Override
     @Transactional
-    public DocumentModel salvaDocumento(MultipartFile file, UserDTO user) throws IOException
+    public DocumentDTO salvaDocumento(MultipartFile file, UserDTO user) throws IOException
     {
         String mimeType = file.getContentType();
 
+        //Validazioni dei file
         if (file.isEmpty())
         {
             throw new IllegalArgumentException("Il file non può essere vuoto");
+        }
+
+        if (file.getSize() > MAX_FILE_SIZE)
+        {
+            throw new IllegalArgumentException("Il file è troppo grande (MAX 5Mb)");
         }
 
         if (mimeType == null || !MIME_TYPES_ACCETTATI.contains(mimeType))
@@ -51,8 +56,11 @@ public class DocumentServiceImpl implements DocumentService
             throw new IllegalArgumentException("Tipo di file non supportato");
         }
 
-        UserModel userModel = userServiceImpl.ConvertToModel(user);
+        //L'utente deve essere presente nel DB per poter assocuare un documento
+        UserModel userModel = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
 
+        //Creo il nuovo documento
         DocumentModel documento = new DocumentModel();
         documento.setNomeFile(file.getOriginalFilename());
         documento.setTipoFile(mimeType);
@@ -60,7 +68,14 @@ public class DocumentServiceImpl implements DocumentService
         documento.setDati(file.getBytes());
         documento.setUtente(userModel);
 
-        return documentRepository.save(documento);
+        //Associo il documento all'utente
+        userModel.getDocumentModels().add(documento);
+
+        //Salvo il documento sul DB
+        documentRepository.save(documento);
+
+        //Converto e restituisco il DTO al controller
+        return convertToDto(documento);
     }
 
     @Override
@@ -97,8 +112,8 @@ public class DocumentServiceImpl implements DocumentService
     }
 
     //Metodi di conversione
-
-    private DocumentDTO convertToDto(DocumentModel documentModel)
+    @Override
+    public DocumentDTO convertToDto(DocumentModel documentModel)
     {
         DocumentDTO documentDTO = null;
         if (documentModel != null)
@@ -108,7 +123,8 @@ public class DocumentServiceImpl implements DocumentService
         return documentDTO;
     }
 
-    private DocumentModel convertToModel(DocumentDTO documentDTO)
+    @Override
+    public DocumentModel convertToModel(DocumentDTO documentDTO)
     {
         DocumentModel documentModel = null;
         if (documentDTO != null)
@@ -117,8 +133,8 @@ public class DocumentServiceImpl implements DocumentService
         }
         return documentModel;
     }
-
-    private List<DocumentDTO> convertToDto(List<DocumentModel> documentModel)
+    @Override
+    public List<DocumentDTO> convertToDto(List<DocumentModel> documentModel)
     {
         List<DocumentDTO> documentDTO = documentModel
                 .stream()

@@ -1,15 +1,15 @@
 package com.example.demo.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Documents")
+@ToString(exclude = "utente") // Evita ricorsione infinita nei toString
+@EqualsAndHashCode(exclude = "utente") // Evita loop nei hashCode e equals
 public class DocumentModel
 {
     @Id

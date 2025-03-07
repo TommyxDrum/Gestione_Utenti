@@ -13,13 +13,10 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService
 {
-
-    @Autowired
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
+
     @Autowired
-    private ModelMapper modelMapper;
-
-
     public UserServiceImpl(UserRepository userRepository)
     {
         this.userRepository = userRepository;
@@ -75,6 +72,7 @@ public class UserServiceImpl implements UserService
 
     // METODO DI CONVERSIONE
 
+    @Override
     public UserDTO ConvertToDto(UserModel userModel)
     {
         UserDTO userDTO = null;
@@ -86,6 +84,7 @@ public class UserServiceImpl implements UserService
         return userDTO;
     }
 
+    @Override
     public List<UserDTO> ConvertToDto(List<UserModel> userModel)
     {
         List<UserDTO> userDTO = userModel
@@ -95,6 +94,7 @@ public class UserServiceImpl implements UserService
         return userDTO;
     }
 
+    @Override
     public UserModel ConvertToModel(UserDTO userDTO)
     {
         UserModel userModel = null;

@@ -3,11 +3,11 @@ package com.example.demo.controllers;
 import com.example.demo.api.UserApi;
 import com.example.demo.dto.UserDTO;
 
+import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.services.UserServiceImpl;
 
 import java.util.List;
 
@@ -16,11 +16,11 @@ import java.util.List;
 public class UserController implements UserApi {
 
 
-    @Autowired
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
 
-    public UserController(UserServiceImpl userServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/getById/{id}")
@@ -28,20 +28,20 @@ public class UserController implements UserApi {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(id);
 
-        UserDTO foundUser = userServiceImpl.getUserById(id);
+        UserDTO foundUser = userService.getUserById(id);
 
         return ResponseEntity.ok(foundUser);
     }
 
     @GetMapping("/getAllUser")
     public ResponseEntity<List<UserDTO>> getAllUser() {
-        List<UserDTO> users = userServiceImpl.getAllUsers();
+        List<UserDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     @PutMapping("/update/{email}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable("email") String email, @RequestBody UserDTO userDTO) {
-        UserDTO updatedUser = userServiceImpl.updateUser(email, userDTO);
+        UserDTO updatedUser = userService.updateUser(email, userDTO);
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -49,13 +49,13 @@ public class UserController implements UserApi {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<UserDTO> deleteUser(@PathVariable Long id){
-        userServiceImpl.deleteUser(id);
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/add")
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO user) {
-        UserDTO userSaved =  userServiceImpl.createUser(user);
+        UserDTO userSaved =  userService.createUser(user);
         return new ResponseEntity<>(userSaved, HttpStatus.CREATED);
     }
 }
