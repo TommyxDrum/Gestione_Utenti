@@ -8,12 +8,24 @@ import com.example.demo.repositories.DocumentRepository;
 import com.example.demo.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.net.http.HttpHeaders;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class DocumentServiceImpl implements DocumentService
@@ -23,6 +35,8 @@ public class DocumentServiceImpl implements DocumentService
     private final UserRepository userRepository;
 
     private final ModelMapper modelMapper;
+    
+    private static final Logger logger = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
     @Autowired
     public DocumentServiceImpl(DocumentRepository documentRepository, UserRepository userRepository, ModelMapper modelMapper) {
@@ -79,16 +93,22 @@ public class DocumentServiceImpl implements DocumentService
     }
 
     @Override
+    @Transactional()
     public List<DocumentDTO> trovaDocumentiByIdUtente(Long idUtente)
     {
+        //Cerchiamo l'utente
         UserModel userModel = userRepository.findById(idUtente)
                 .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
 
         //Restituisce la lista dei documenti per id utente
         List<DocumentModel> documents = documentRepository.findByIdUtente(idUtente);
+
+        //Se non trovo documenti restituisco una lista vuota
         if (documents.isEmpty())
         {
-            System.out.println("Nessun documento presente per per l'utente con id" + userModel.getId());
+            logger.info("Nessun documento presente per l'utente con id" + userModel.getId());
+
+            return Collections.emptyList();
         }
 
         return convertToDto(documents);
@@ -99,6 +119,7 @@ public class DocumentServiceImpl implements DocumentService
     {
         DocumentModel documentModel = documentRepository.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("Documento non trovato"));
+
         return convertToDto(documentModel);
     }
 
@@ -109,6 +130,51 @@ public class DocumentServiceImpl implements DocumentService
                 .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
 
         documentRepository.deleteById(id);
+    }
+
+    @Transactional
+    public DocumentModel downloadDocument(Long id)
+    {
+        //Verifichiamo la presenza del file
+        DocumentModel documentModel = documentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("File non trovato"));
+
+        return documentModel;
+    }
+
+    @Transactional
+    public Resource downloadAllDocumentUser (Long id)
+    {
+        UserModel userModel = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
+
+        //Recupeo dei documenti dell'utente
+        Set<DocumentModel> documentiUtente = userModel.getDocumentModels();
+
+        if (documentiUtente.isEmpty())
+        {
+            throw new IllegalArgumentException("Nessun documento trovato");
+        }
+
+        //Preparazione del file ZIP
+        try(ByteArrayOutputStream baos = new ByteArrayOutputStream(); //Serve per scrivere i dati in memoria come array di byte. È un buffer che conterrà il file ZIP finale.
+            ZipOutputStream zos = new ZipOutputStream(baos)) //Serve per scrivere i dati in formato ZIP dentro il ByteArrayOutputStream
+        {
+            for (DocumentModel documentModel : documentiUtente) //Ciclo sui documenti
+            {
+                ZipEntry zipEntry = new ZipEntry(documentModel.getNomeFile()); //Creo una nuova "voce" all'interno dello zip
+                zos.putNextEntry(zipEntry); //Indica l'inizio della scrittura di un nuovo file nello  zip
+                zos.write(documentModel.getDati()); // Scrive effettivamente i file nel file zip
+                zos.closeEntry(); // Chiude la voce corrente nel file zip e prepara il flusso di un nuovo inserimento (se necessario)
+            }
+
+            zos.finish(); // FInalizza il file zip, assicurandosi che tutte le voci siano scritte correttamente
+            return new ByteArrayResource //Converte tutto il contenuto del ByteArrayOutputStream in un array di byte
+                    (baos.toByteArray()); //Incapsula l'array di byte per restituirlo in modo sicuro e gestibile come Resource. Questo è utile per il controller, che lo gestirà nella risposta HTTP.
+
+        } catch (IOException e) {
+            throw new RuntimeException("Errore nella creazione del file zip" + e);
+        }
     }
 
     //Metodi di conversione
