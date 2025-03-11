@@ -24,7 +24,7 @@ public class UserController implements UserApi {
     }
 
     @GetMapping("/getById/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id){
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(id);
 
@@ -46,16 +46,15 @@ public class UserController implements UserApi {
     }
 
 
-
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<UserDTO> deleteUser(@PathVariable Long id){
+    public ResponseEntity<UserDTO> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/add")
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO user) {
-        UserDTO userSaved =  userService.createUser(user);
+        UserDTO userSaved = userService.createUser(user);
         return new ResponseEntity<>(userSaved, HttpStatus.CREATED);
     }
 }

@@ -8,8 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface DocumentRepository extends JpaRepository<DocumentModel, Long>
-{
+public interface DocumentRepository extends JpaRepository<DocumentModel, Long> {
     Optional<DocumentModel> findById(Long id);
 
     void deleteById(Long id);

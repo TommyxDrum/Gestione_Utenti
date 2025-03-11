@@ -19,57 +19,48 @@ import java.util.List;
 
 @RequestMapping("/documents")
 @Controller
-public class DocumentController
-{
+public class DocumentController {
     private final DocumentService documentService;
 
     @Autowired
-    public DocumentController(DocumentService documentService)
-    {
+    public DocumentController(DocumentService documentService) {
         this.documentService = documentService;
     }
 
     @PostMapping("/upload")
     public ResponseEntity<DocumentDTO> uploadDocument(
             @RequestPart MultipartFile file,
-            @RequestPart UserDTO userDTO)
-    {
+            @RequestPart UserDTO userDTO) {
         try {
             DocumentDTO documentSaved = documentService.salvaDocumento(file, userDTO);
             return new ResponseEntity<>(documentSaved, HttpStatus.CREATED);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/findByUserId/{userId}")
-    public ResponseEntity<List<DocumentDTO>> findByUserId(@PathVariable("userId") Long userId)
-    {
+    public ResponseEntity<List<DocumentDTO>> findByUserId(@PathVariable("userId") Long userId) {
         List<DocumentDTO> documets = documentService.trovaDocumentiByIdUtente(userId);
         return ResponseEntity.ok(documets);
     }
 
     @GetMapping("/findDocumentById/{id}")
-    public ResponseEntity<DocumentDTO> findDocumentById(@PathVariable("id") Long id)
-    {
+    public ResponseEntity<DocumentDTO> findDocumentById(@PathVariable("id") Long id) {
         DocumentDTO documentDTO = documentService.trovaDocumentoById(id);
 
         return ResponseEntity.ok(documentDTO);
     }
 
     @DeleteMapping("/deleteDocument/{id}")
-    public ResponseEntity<UserDTO> deleteDocument(@PathVariable("id") Long id)
-    {
+    public ResponseEntity<UserDTO> deleteDocument(@PathVariable("id") Long id) {
         documentService.eliminaDocumento(id);
 
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<byte[]> downloadDocument(@PathVariable("id") Long id)
-    {
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable("id") Long id) {
         DocumentModel documentModel = documentService.downloadDocument(id);
 
         HttpHeaders headers = new HttpHeaders();
@@ -81,8 +72,7 @@ public class DocumentController
     }
 
     @GetMapping("/downloadAllDocument/{id}")
-    public ResponseEntity<Resource> downloadAllDocument(@PathVariable("id") Long id) throws IOException
-    {
+    public ResponseEntity<Resource> downloadAllDocument(@PathVariable("id") Long id) throws IOException {
         //Richiedo il file zip con tutti i documenti dal service
         Resource zipResource = documentService.downloadAllDocumentUser(id);
 

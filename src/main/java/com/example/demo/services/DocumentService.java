@@ -10,15 +10,24 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-public interface DocumentService
-{
+public interface DocumentService {
     DocumentDTO salvaDocumento(MultipartFile file, UserDTO user) throws IOException;
+
     List<DocumentDTO> trovaDocumentiByIdUtente(Long idUtente);
+
     DocumentDTO trovaDocumentoById(Long id);
-    void eliminaDocumento (Long id);
+
+    void eliminaDocumento(Long id);
+
     DocumentDTO convertToDto(DocumentModel documentModel);
+
     DocumentModel convertToModel(DocumentDTO documentDTO);
+
     List<DocumentDTO> convertToDto(List<DocumentModel> documentModel);
+
     DocumentModel downloadDocument(Long id);
-    Resource downloadAllDocumentUser (Long id);
+
+    Resource downloadAllDocumentUser(Long id);
+
+    boolean isDownloadAllowed();
 }

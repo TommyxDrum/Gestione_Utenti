@@ -12,11 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ModelMapperConfig
-{
+public class ModelMapperConfig {
     @Bean
-    public ModelMapper modelMapper()
-    {
+    public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setSkipNullEnabled(true);
 
@@ -31,11 +29,9 @@ public class ModelMapperConfig
         return modelMapper;
     }
 
-    PropertyMap<UserModel, UserDTO> utentiMapping = new PropertyMap<UserModel, UserDTO>()
-    {
+    PropertyMap<UserModel, UserDTO> utentiMapping = new PropertyMap<UserModel, UserDTO>() {
         @Override
-        protected void configure()
-        {
+        protected void configure() {
             map().setId(source.getId());
             map().setNome(source.getNome());
             map().setCognome(source.getCognome());
@@ -43,11 +39,9 @@ public class ModelMapperConfig
         }
     };
 
-    PropertyMap<DocumentModel, DocumentDTO> documentMapping = new PropertyMap<DocumentModel, DocumentDTO>()
-    {
+    PropertyMap<DocumentModel, DocumentDTO> documentMapping = new PropertyMap<DocumentModel, DocumentDTO>() {
         @Override
-        protected void configure()
-        {
+        protected void configure() {
             map().setId(source.getId());
             map().setNomeFile(source.getNomeFile());
             map().setTipoFile(source.getTipoFile());
@@ -55,20 +49,16 @@ public class ModelMapperConfig
         }
     };
 
-    Converter<String, String> userConverter = new Converter<String, String>()
-    {
+    Converter<String, String> userConverter = new Converter<String, String>() {
         @Override
-        public String convert(MappingContext<String, String> mappingContext)
-        {
+        public String convert(MappingContext<String, String> mappingContext) {
             return mappingContext.getSource() == null ? "" : mappingContext.getSource().trim();
         }
     };
 
-    Converter<String, String> documentConverter = new Converter<String, String>()
-    {
+    Converter<String, String> documentConverter = new Converter<String, String>() {
         @Override
-        public String convert(MappingContext<String, String> mappingContext)
-        {
+        public String convert(MappingContext<String, String> mappingContext) {
             return mappingContext.getSource() == null ? "" : mappingContext.getSource().trim();
         }
     };

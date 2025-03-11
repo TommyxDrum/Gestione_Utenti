@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 @EntityScan(basePackages = "com.example.demo.models")
 public class GestioneUtentiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(GestioneUtentiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GestioneUtentiApplication.class, args);
+    }
 }

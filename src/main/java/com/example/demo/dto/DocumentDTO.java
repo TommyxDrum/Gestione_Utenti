@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DocumentDTO
-{
+public class DocumentDTO {
     private Long id;
     @JsonProperty("Nome file")
     private String nomeFile;

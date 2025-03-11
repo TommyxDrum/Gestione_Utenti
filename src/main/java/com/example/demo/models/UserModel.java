@@ -10,7 +10,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="Users")
+@Table(name = "Users")
 @ToString(exclude = "documentModels") // Evita ricorsione infinita nei toString
 @EqualsAndHashCode(exclude = "documentModels") // Evita loop nei hashCode e equals
 public class UserModel {
@@ -29,6 +29,9 @@ public class UserModel {
 
     @Column(name = "password")
     private String password;
+
+    @Column(name = "timezone")
+    String timezone;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "utente")
     private Set<DocumentModel> documentModels = new HashSet<>();
